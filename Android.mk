@@ -19,11 +19,9 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := fingerprint.$(TARGET_DEVICE)
 LOCAL_MODULE_RELATIVE_PATH := hw
-LOCAL_SRC_FILES := fingerprint.c \
-		   QSEEComFunc.c \
-		   common.c
+LOCAL_SRC_FILES := QSEEComFunc.c \
+        		   common.c
 
 ifeq ($(filter-out kitakami,$(PRODUCT_PLATFORM)),)
 LOCAL_SRC_FILES += fpc_imp_kitakami.c
@@ -42,7 +40,6 @@ ifeq ($(TARGET_FPC_VERSION),N)
 LOCAL_CFLAGS += -DUSE_FPC_N
 endif
 
-LOCAL_CFLAGS += -std=c99
 LOCAL_SHARED_LIBRARIES := liblog \
 			  libdl \
 			  libutils
@@ -59,8 +56,30 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
 endif
 
 LOCAL_CFLAGS += -DPLATFORM_SDK_VERSION=$(PLATFORM_SDK_VERSION)
-
 LOCAL_MODULE_TAGS := optional
 
+# TODO: We want to check >= 26 or some other way to detect
+# binderized HAL support
+ifeq ($(PLATFORM_SDK_VERSION), 26)
+LOCAL_MODULE := android.hardware.biometrics.fingerprint@2.1-service
+LOCAL_INIT_RC := android.hardware.biometrics.fingerprint@2.1-service.rc
+LOCAL_PROPRIETARY_MODULE := true
+LOCAL_MODULE_RELATIVE_PATH := hw
+LOCAL_SRC_FILES += \
+    BiometricsFingerprint.cpp \
+    service.cpp
+
+LOCAL_SHARED_LIBRARIES += \
+	libcutils \
+    libhidlbase \
+    libhidltransport \
+    libhardware \
+    android.hardware.biometrics.fingerprint@2.1
+
+include $(BUILD_EXECUTABLE)
+else
+LOCAL_MODULE := fingerprint.$(TARGET_DEVICE)
+LOCAL_CFLAGS += -std=c99
 include $(BUILD_SHARED_LIBRARY)
+endif
 endif
