@@ -170,7 +170,12 @@ typedef struct {
     uint32_t command;
     int32_t status;
     uint32_t id;
-    uint32_t unk1[2];
+    uint32_t coverage;
+    uint32_t qual;
+    uint32_t covered_zones;
+    uint32_t res;
+    uint32_t score;
+    uint32_t idx;
 } fpc_send_identify_t;
 
 typedef struct {

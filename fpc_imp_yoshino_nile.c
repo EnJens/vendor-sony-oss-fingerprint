@@ -488,6 +488,11 @@ err_t fpc_auth_step(fpc_imp_data_t *data, uint32_t *print_id)
     }
 
     ALOGD("Print identified as %d\n", identify_cmd.id);
+#if defined(USE_FPC_YOSHINO)
+    ALOGD("res: %d cov: %d, qual: %d, covered zones: %d, score: %d, idx: %u\n",
+          identify_cmd.res, identify_cmd.coverage, identify_cmd.qual, identify_cmd.covered_zones,
+          identify_cmd.score, identify_cmd.idx);
+#endif
 
     *print_id = identify_cmd.id;
     return identify_cmd.status;
