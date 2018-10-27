@@ -20,6 +20,8 @@
 
 #ifdef USE_FPC_NILE
 #include "tz_api_nile.h"
+#elif USE_FPC_TAMA
+#include "tz_api_tama.h"
 #else
 #include "tz_api_yoshino.h"
 #endif
@@ -51,9 +53,10 @@ typedef struct {
 } fpc_data_t;
 
 err_t fpc_deep_sleep(fpc_imp_data_t *data);
+err_t fpc_sensor_wake(fpc_imp_data_t *data);
 
 static const char *error_strings[] = {
-#ifdef USE_FPC_NILE
+#if defined(USE_FPC_NILE) || defined(USE_FPC_TAMA)
     "FPC_ERROR_TEMPLATE_CORRUPTED",
     "FPC_ERROR_DB",
     "FPC_ERROR_CRYPTO",
@@ -377,12 +380,11 @@ err_t fpc_capture_image(fpc_imp_data_t *data)
         ALOGE("Error starting device\n");
         return -1;
     }
-    //fpc_deep_sleep(data);
-
     int ret = fpc_wait_finger_lost(data);
     ALOGD("fpc_wait_finger_lost = 0x%08X", ret);
     if(!ret)
     {
+        fpc_sensor_wake(data);
 //        while(1)
         {
             ALOGD("Finger lost as expected");
@@ -399,6 +401,10 @@ err_t fpc_capture_image(fpc_imp_data_t *data)
         } else {
             ret = 1000;
     }
+
+#ifdef USE_FPC_TAMA
+    fpc_deep_sleep(data);
+#endif
 
     if (fpc_set_power(FPC_PWROFF) < 0) {
         ALOGE("Error stopping device\n");
@@ -618,6 +624,19 @@ err_t fpc_update_template(fpc_imp_data_t *data)
         return result;
 
     return -1;
+}
+
+err_t fpc_sensor_wake(fpc_imp_data_t *data) {
+    err_t result = 0;
+#ifdef USE_FPC_TAMA
+    fpc_data_t *ldata = (fpc_data_t*)data;
+
+    result = send_normal_command(ldata, FPC_GROUP_SENSOR, FPC_SENSOR_WAKE);
+
+    ALOGI("Sensor wake Result: %d\n", result);
+#endif
+    return result;
+
 }
 
 err_t fpc_deep_sleep(fpc_imp_data_t *data) {
