@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #define FP_TZAPP_PATH "/odm/firmware/"
-#define FP_TZAPP_NAME "tzfingerprint"
+#define FP_TZAPP_NAME "fpctzfingerprint"
 
 #define KM_TZAPP_PATH "/system/etc/firmware"
 #define KM_TZAPP_ALT_PATH ""
@@ -61,7 +61,8 @@ enum fingerprint_fpcdata_cmd_t {
 
 //enumerate tz app command ID's
 enum fingerprint_sensor_cmd_t {
-    FPC_WAIT_FINGER_LOST = 0x00,
+    FPC_SENSOR_WAKE = 0x00,
+    FPC_WAIT_FINGER_LOST = 0x01,
     FPC_WAIT_FINGER_DOWN = 0x02,
     FPC_CAPTURE_IMAGE = 0x3,
     FPC_DEEP_SLEEP = 0x04,
@@ -165,17 +166,18 @@ typedef struct {
     char* data;
 } fpc_send_buffer_t;
 
-typedef struct {
-    uint32_t commandgroup;
-    uint32_t command;
-    int32_t status;
-    uint32_t id;
-    uint32_t coverage;
-    uint32_t qual;
-    uint32_t covered_zones;
-    uint32_t res;
-    uint32_t score;
-    uint32_t idx;
+typedef struct
+{
+  uint32_t commandgroup;
+  uint32_t command;
+  int32_t status;
+  uint32_t id;
+  uint32_t coverage;
+  uint32_t qual;
+  uint32_t covered_zones;
+  uint32_t res;
+  uint32_t score;
+  uint32_t idx;
 } fpc_send_identify_t;
 
 typedef struct {
